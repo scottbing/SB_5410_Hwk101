@@ -231,9 +231,26 @@ def user_click():
     # we need to draw the images at
     # the desired positions
     if (row and col and board[row - 1][col - 1] is None):
-        global XO
+        global X0, winner, draw
         drawXO(row, col)
         check_win()
+        if not draw and not winner:
+            # computer only moves if click was valid and game not over
+            computer_move()
+
+    # end def user_click():
+
+    import random
+    def computer_move():
+        while True:
+            row = random.randint(0, 3)
+            col = random.randint(0, 3)
+            if (row and col and board[row - 1][col - 1] is None):
+                global X0
+                drawXO(row, col)
+                check_win()
+                break
+    # end def computer_move():
 
 
 def reset_game():
