@@ -55,7 +55,9 @@ INITIATING_WINDOW = pg.transform.scale(INITIATING_WINDOW, (WIDTH, HEIGHT + 100))
 X_IMG = pg.transform.scale(X_IMG, (80, 80))
 O_IMG = pg.transform.scale(Y_IMG, (80, 80))
 
+
 def game_INITIATING_WINDOW():
+    """Draw the playing board"""
     # displaying over the screen
     SCREEN.blit(INITIATING_WINDOW, (0, 0))
 
@@ -75,10 +77,11 @@ def game_INITIATING_WINDOW():
     pg.draw.line(SCREEN, LINE_COLOR, (0, HEIGHT / 3), (WIDTH, HEIGHT / 3), 7)
     pg.draw.line(SCREEN, LINE_COLOR, (0, HEIGHT / 3 * 2), (WIDTH, HEIGHT / 3 * 2), 7)
     draw_status()
-#end def game_INITIATING_WINDOW():
+# end def game_INITIATING_WINDOW():
 
 
 def draw_status():
+    """Setup to render the screen"""
     # getting the global variable DRAW
     # into action
     global DRAW
@@ -103,10 +106,11 @@ def draw_status():
     text_rect = text.get_rect(center=(WIDTH / 2, 500 - 50))
     SCREEN.blit(text, text_rect)
     pg.display.update()
-#end def draw_status():
+# end def draw_status():
 
 
 def check_win(ret_val=False):
+    """Check for a vertical, horizontal, or diagonal win"""
     global BOARD, WINNER, DRAW
 
     # DRAW is what hte ret_val cares about
@@ -157,6 +161,7 @@ def check_win(ret_val=False):
 
 
 def DRAWXO(row, col):
+    """Draw the player's symbol on the board"""
     global BOARD, XO
 
     # for the first row, the image
@@ -202,11 +207,11 @@ def DRAWXO(row, col):
         SCREEN.blit(O_IMG, (posy, posx))
         XO = 'x'
     pg.display.update()
-#end def DRAWXO(row, col):
+# end def DRAWXO(row, col):
 
 
 def user_click():
-    # get coordinates of mouse click
+    """get coordinates of mouse click"""
     x, y = pg.mouse.get_pos()
 
     # get column of mouse click (1-3)
@@ -249,6 +254,8 @@ def user_click():
 
 
 def evaluate(b):
+    """evaluate the current status of the board
+    to make the next move"""
     player = 'o'
     opponent = 'x'
     for row in range(0, 3):
@@ -282,7 +289,10 @@ def evaluate(b):
     return 0
 # end def evaluate_BOARD(BOARD):
 
+
 def minimax(BOARD, depth, is_max):
+    """sets up to call the minmax function with the
+    appropriate inputs"""
     score = evaluate(BOARD)
 
     # either max won with 10 or min with —10
@@ -293,50 +303,39 @@ def minimax(BOARD, depth, is_max):
         return 0
     # if it is maximizers turn
     if is_max:
-        # repeat code from computer_move. You can clean this later
-        best = -1000
-
-        # Traverse all cells, evaluate minimax function for
-        # all empty cells. And return the cell with optimal
-        # value.
-        for row in range(1, 4):
-            for col in range(1, 4):
-                # check if cell is empty and valid
-                if (BOARD[row - 1][col - 1] is None):
-                    # make the move
-                    BOARD[row - 1][col - 1] = 'o'
-                    # compute evaluation function for this move
-
-                    best = max(best, minimax(BOARD, depth + 1, not is_max))
-                    # undo the move
-                    BOARD[row - 1][col - 1] = None
-        return best
+        return minmax(-1000, depth, max, is_max, 'o')
     # else it is minimizer's turn
     else:
-        # repeat code from computer_move, except posistive score.
-        best = 1000
-
-        # Traverse all cells, evaluate minimax function for
-        # all empty cells. And return the cell with optimal
-        # value.
-        for row in range(1, 4):
-            for col in range(1, 4):
-                # check if cell is empty and valid
-                if (BOARD[row - 1][col - 1] is None):
-                    # make the move
-                    BOARD[row - 1][col - 1] = 'x'
-                    # compute evaluation function for this move
-
-                    best = min(best, minimax(BOARD, depth + 1, not is_max))  # min not max
-                    # undo the move
-                    BOARD[row - 1][col - 1] = None
-
-        return best
+        return minmax(1000, depth, min, is_max, 'x')
     # end def minimax(BOARD, depth, is_max):
+
+
+def minmax(top, depth, fn, is_max, player):
+    """invokes the minimax function to make the next game move"""
+    # repeat code from computer_move. You can clean this later
+    best = top
+
+    # Traverse all cells, evaluate minimax function for
+    # all empty cells. And return the cell with optimal
+    # value.
+    for row in range(1, 4):
+        for col in range(1, 4):
+            # check if cell is empty and valid
+            if (BOARD[row - 1][col - 1] is None):
+                # make the move
+                BOARD[row - 1][col - 1] = player
+                # compute evaluation function for this move
+
+                best = fn(best, minimax(BOARD, depth + 1, not is_max))
+                # undo the move
+                BOARD[row - 1][col - 1] = None
+    return best
 
 
 # This will return the best possible move for the player
 def computer_move():
+    """Makes the next board move based upon information
+    received the minimax function"""
     global XO
     best_val = -1000
     best_move = (-1, -1)
@@ -367,10 +366,13 @@ def computer_move():
     # perform move with the largest value
     DRAWXO(best_move[0], best_move[1])  # broken right now
     check_win()
+
+
 # end def computer_move():
 
 
 def reset_game():
+    """Reset the game board"""
     global BOARD, WINNER, XO, DRAW
     time.sleep(3)
     XO = 'x'
@@ -378,11 +380,15 @@ def reset_game():
     game_INITIATING_WINDOW()
     WINNER = None
     BOARD = [[None] * 3, [None] * 3, [None] * 3]
-#end reset_game():
+
+
+# end reset_game():
 
 
 # driver Code
 def main():
+    """The python main() function.  Functions as
+    the entry point to the application"""
     # initializing the pygame window
     pg.init()
 
@@ -403,7 +409,9 @@ def main():
                     reset_game()
         pg.display.update()
         CLOCK.tick(FPS)
-#end def main():
+
+
+# end def main():
 
 
 if __name__ == '__main__':
